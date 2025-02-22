@@ -62,3 +62,7 @@ document.addEventListener("DOMContentLoaded", function () {
         resultDiv.innerHTML = "<p>該当するデータがありません。</p>";
     }
 }
+    
+    // searchSchedule 関数をグローバルに公開
+    window.searchSchedule = searchSchedule;
+});
