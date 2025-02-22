@@ -4,14 +4,26 @@ document.addEventListener("DOMContentLoaded", function () {
     const resultDiv = document.getElementById("result");
 
     let deliveryData = {};
+    let routeDeliveryData = {};
 
-    // JSONデータを読み込む
-    fetch("delivery_data.json")
-        .then(response => response.json())
-        .then(data => {
-            deliveryData = data;
-        })
-        .catch(error => console.error("データの読み込みに失敗しました", error));
+    // 各JSONファイルをロード
+    async function loadDeliveryData() {
+        try {
+            const [tokyo23, tokyoShibu, routeDelivery] = await Promise.all([
+                fetch("tokyo_23ku.json").then(res => res.json()),
+                fetch("tokyo_shibu.json").then(res => res.json()),
+                fetch("route_delivery.json").then(res => res.json())
+            ]);
+
+            // データを統合
+            deliveryData = { ...tokyo23, ...tokyoShibu };
+            routeDeliveryData = routeDelivery["路線便エリア"];
+        } catch (error) {
+            console.error("データの読み込みに失敗しました", error);
+        }
+    }
+
+    loadDeliveryData();
 
     // エリア選択時に地域の選択肢を更新
     areaSelect.addEventListener("change", function () {
@@ -37,7 +49,9 @@ document.addEventListener("DOMContentLoaded", function () {
         const selectedRegion = regionSelect.value;
         resultDiv.innerHTML = "";
 
-        if (selectedArea && selectedRegion && deliveryData[selectedArea] && deliveryData[selectedArea][selectedRegion]) {
+        if (selectedRegion in routeDeliveryData) {
+            resultDiv.innerHTML = `<p style="color:red">${routeDeliveryData[selectedRegion]}</p>`;
+        } else if (selectedArea && selectedRegion && deliveryData[selectedArea] && deliveryData[selectedArea][selectedRegion]) {
             let schedule = `<h3>${selectedRegion}の配送スケジュール</h3>`;
             for (let time in deliveryData[selectedArea][selectedRegion]) {
                 schedule += `<p>${time}: ${deliveryData[selectedArea][selectedRegion][time]}</p>`;
