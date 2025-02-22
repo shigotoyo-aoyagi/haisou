@@ -45,22 +45,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // 配送スケジュールを検索
     function searchSchedule() {
-        const selectedArea = areaSelect.value;
-        const selectedRegion = regionSelect.value;
-        resultDiv.innerHTML = "";
+    const selectedArea = areaSelect.value;
+    const selectedRegion = regionSelect.value;
+    resultDiv.innerHTML = "";
 
-        if (selectedRegion in routeDeliveryData) {
-            resultDiv.innerHTML = `<p style="color:red">${routeDeliveryData[selectedRegion]}</p>`;
-        } else if (selectedArea && selectedRegion && deliveryData[selectedArea] && deliveryData[selectedArea][selectedRegion]) {
-            let schedule = `<h3>${selectedRegion}の配送スケジュール</h3>`;
-            for (let time in deliveryData[selectedArea][selectedRegion]) {
-                schedule += `<p>${time}: ${deliveryData[selectedArea][selectedRegion][time]}</p>`;
-            }
-            resultDiv.innerHTML = schedule;
-        } else {
-            resultDiv.innerHTML = "<p>該当するデータがありません。</p>";
+    if (selectedRegion in routeDeliveryData) {
+        resultDiv.innerHTML = `<p style="color:red">${routeDeliveryData[selectedRegion]}</p>`;
+    } else if (selectedArea && selectedRegion && deliveryData[selectedArea] && deliveryData[selectedArea][selectedRegion]) {
+        let schedule = `<h3>${selectedRegion}の配送スケジュール</h3>`;
+        for (let time in deliveryData[selectedArea][selectedRegion]) {
+            const scheduleData = deliveryData[selectedArea][selectedRegion][time];
+            schedule += `<p>${time}: 平日 - ${scheduleData["平日"]}, 土曜日 - ${scheduleData["土曜日"]}</p>`;
         }
+        resultDiv.innerHTML = schedule;
+    } else {
+        resultDiv.innerHTML = "<p>該当するデータがありません。</p>";
     }
-
-    window.searchSchedule = searchSchedule;
-});
+}
