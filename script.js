@@ -10,13 +10,11 @@ document.addEventListener("DOMContentLoaded", function () {
     // JSONファイル（自社便・路線便）のデータをロード
     async function loadDeliveryData() {
         try {
-            const [tokyo23, tokyoShibu, routeDelivery] = await Promise.all([
-                fetch("tokyo_23ku.json").then(res => res.json()),
+            const [tokyoData, routeDelivery] = await Promise.all([
+                fetch("tokyo.json").then(res => res.json()),
                 fetch("route_delivery.json").then(res => res.json())
             ]);
-            // 自社便データを統合
-            deliveryData = { ...tokyo23, ...tokyoShibu };
-            // 路線便エリアのデータ（例：富岡、裏高尾町など）
+            deliveryData = tokyoData;
             routeDeliveryData = routeDelivery["路線便エリア"];
         } catch (error) {
             console.error("データの読み込みに失敗しました", error);
@@ -68,46 +66,43 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // 配送スケジュールを検索・表示
+    // 配送スケジュールを検索・表示（結果をカード形式で出力）
     function searchSchedule() {
         const selectedArea = areaSelect.value;
         const selectedRegion = regionSelect.value;
         const selectedSubArea = subAreaSelect.value;
         resultDiv.innerHTML = "";
 
-        // サブエリアが選択されている場合
         if (selectedSubArea && deliveryData[selectedArea][selectedRegion].subAreas[selectedSubArea]) {
             let scheduleData = deliveryData[selectedArea][selectedRegion].subAreas[selectedSubArea];
-            let schedule = `<h3>${selectedRegion} / ${selectedSubArea} の配送スケジュール</h3>`;
+            let scheduleHTML = `<div class="result-header">${selectedRegion} / ${selectedSubArea} の配送スケジュール</div>`;
             for (let time in scheduleData) {
-                let display = `${time}: 平日 - ${scheduleData[time]["平日"]}`;
+                let display = `<strong>${time}</strong>: 平日 - ${scheduleData[time]["平日"]}`;
                 if (scheduleData[time]["土曜日"]) {
                     display += `, 土曜日 - ${scheduleData[time]["土曜日"]}`;
                 }
-                schedule += `<p>${display}</p>`;
+                scheduleHTML += `<div class="result-card"><div class="result-item">${display}</div></div>`;
             }
-            resultDiv.innerHTML = schedule;
+            resultDiv.innerHTML = scheduleHTML;
         } else if (selectedRegion in routeDeliveryData) {
-            // 路線便エリアの場合（例：富岡、裏高尾町など）
-            resultDiv.innerHTML = `<p style="color:red">${routeDeliveryData[selectedRegion]}</p>`;
+            resultDiv.innerHTML = `<div class="result-header">路線便エリア</div>
+                                   <div class="result-card"><div class="result-item" style="color:red">${routeDeliveryData[selectedRegion]}</div></div>`;
         } else if (selectedArea && selectedRegion && deliveryData[selectedArea] && deliveryData[selectedArea][selectedRegion]) {
-            // サブエリアがない場合の通常の自社便スケジュール
             let scheduleData = deliveryData[selectedArea][selectedRegion];
-            let schedule = `<h3>${selectedRegion} の配送スケジュール</h3>`;
+            let scheduleHTML = `<div class="result-header">${selectedRegion} の配送スケジュール</div>`;
             for (let time in scheduleData) {
                 if (time === "subAreas") continue; // サブエリア情報は除外
-                let display = `${time}: 平日 - ${scheduleData[time]["平日"]}`;
+                let display = `<strong>${time}</strong>: 平日 - ${scheduleData[time]["平日"]}`;
                 if (scheduleData[time]["土曜日"]) {
                     display += `, 土曜日 - ${scheduleData[time]["土曜日"]}`;
                 }
-                schedule += `<p>${display}</p>`;
+                scheduleHTML += `<div class="result-card"><div class="result-item">${display}</div></div>`;
             }
-            resultDiv.innerHTML = schedule;
+            resultDiv.innerHTML = scheduleHTML;
         } else {
             resultDiv.innerHTML = "<p>該当するデータがありません。</p>";
         }
     }
 
-    // searchSchedule 関数をグローバルに公開
     window.searchSchedule = searchSchedule;
 });
