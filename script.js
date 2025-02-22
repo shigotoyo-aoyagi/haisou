@@ -12,8 +12,7 @@ document.addEventListener("DOMContentLoaded", function () {
     async function loadDeliveryData() {
         try {
             const [tokyoData, routeDelivery] = await Promise.all([
-                fetch("tokyo.json").then(res => res.json()),
-                fetch("route_delivery.json").then(res => res.json())
+                fetch("tokyo.json").then(res => res.json())            
             ]);
             deliveryData = tokyoData;
             routeDeliveryData = routeDelivery["路線便エリア"];
