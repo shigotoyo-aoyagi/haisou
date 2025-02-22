@@ -69,41 +69,48 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // 配送スケジュールを検索・表示（結果をカード形式で出力）
     function searchSchedule() {
-        const selectedArea = areaSelect.value;
-        const selectedRegion = regionSelect.value;
-        const selectedSubArea = subAreaSelect.value;
-        resultDiv.innerHTML = "";
+    const selectedArea = areaSelect.value;
+    const selectedRegion = regionSelect.value;
+    const selectedSubArea = subAreaSelect.value;
+    resultDiv.innerHTML = "";
 
-        if (selectedSubArea && deliveryData[selectedArea][selectedRegion].subAreas[selectedSubArea]) {
-            let scheduleData = deliveryData[selectedArea][selectedRegion].subAreas[selectedSubArea];
-            let scheduleHTML = `<div class="result-header">${selectedRegion} / ${selectedSubArea} の配送スケジュール</div>`;
-            for (let time in scheduleData) {
-                let display = `<strong>${time}</strong>: 平日 - ${scheduleData[time]["平日"]}`;
-                if (scheduleData[time]["土曜日"]) {
-                    display += `, 土曜日 - ${scheduleData[time]["土曜日"]}`;
-                }
-                scheduleHTML += `<div class="result-card"><div class="result-item">${display}</div></div>`;
-            }
-            resultDiv.innerHTML = scheduleHTML;
-        } else if (selectedRegion in routeDeliveryData) {
-            resultDiv.innerHTML = `<div class="result-header">路線便エリア</div>
-                                   <div class="result-card"><div class="result-item" style="color:red">${routeDeliveryData[selectedRegion]}</div></div>`;
-        } else if (selectedArea && selectedRegion && deliveryData[selectedArea] && deliveryData[selectedArea][selectedRegion]) {
-            let scheduleData = deliveryData[selectedArea][selectedRegion];
-            let scheduleHTML = `<div class="result-header">${selectedRegion} の配送スケジュール</div>`;
-            for (let time in scheduleData) {
-                if (time === "subAreas") continue; // サブエリア情報は除外
-                let display = `<strong>${time}</strong>: 平日 - ${scheduleData[time]["平日"]}`;
-                if (scheduleData[time]["土曜日"]) {
-                    display += `, 土曜日 - ${scheduleData[time]["土曜日"]}`;
-                }
-                scheduleHTML += `<div class="result-card"><div class="result-item">${display}</div></div>`;
-            }
-            resultDiv.innerHTML = scheduleHTML;
+    if (selectedSubArea && deliveryData[selectedArea][selectedRegion].subAreas[selectedSubArea]) {
+        let subData = deliveryData[selectedArea][selectedRegion].subAreas[selectedSubArea];
+        let scheduleHTML = `<div class="result-header">${selectedRegion} / ${selectedSubArea}</div>`;
+        if (typeof subData === 'string') {
+            // サブエリアが文字列の場合（例："路線便対応"）
+            scheduleHTML += `<div class="result-card"><div class="result-item">${subData}</div></div>`;
         } else {
-            resultDiv.innerHTML = "<p>該当するデータがありません。</p>";
+            // サブエリアがオブジェクトの場合はスケジュール情報を表示
+            for (let time in subData) {
+                let display = `<strong>${time}</strong>: 平日 - ${subData[time]["平日"]}`;
+                if (subData[time]["土曜日"]) {
+                    display += `, 土曜日 - ${subData[time]["土曜日"]}`;
+                }
+                scheduleHTML += `<div class="result-card"><div class="result-item">${display}</div></div>`;
+            }
         }
+        resultDiv.innerHTML = scheduleHTML;
+    } else if (selectedRegion in routeDeliveryData) {
+        resultDiv.innerHTML = `<div class="result-header">路線便エリア</div>
+                               <div class="result-card"><div class="result-item" style="color:red">${routeDeliveryData[selectedRegion]}</div></div>`;
+    } else if (selectedArea && selectedRegion && deliveryData[selectedArea] && deliveryData[selectedArea][selectedRegion]) {
+        let scheduleData = deliveryData[selectedArea][selectedRegion];
+        let scheduleHTML = `<div class="result-header">${selectedRegion} の配送スケジュール</div>`;
+        for (let time in scheduleData) {
+            if (time === "subAreas") continue; // サブエリア情報は除外
+            let display = `<strong>${time}</strong>: 平日 - ${scheduleData[time]["平日"]}`;
+            if (scheduleData[time]["土曜日"]) {
+                display += `, 土曜日 - ${scheduleData[time]["土曜日"]}`;
+            }
+            scheduleHTML += `<div class="result-card"><div class="result-item">${display}</div></div>`;
+        }
+        resultDiv.innerHTML = scheduleHTML;
+    } else {
+        resultDiv.innerHTML = "<p>該当するデータがありません。</p>";
     }
+}
+
 
     window.searchSchedule = searchSchedule;
 });
