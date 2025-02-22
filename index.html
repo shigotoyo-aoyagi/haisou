@@ -70,6 +70,10 @@
     .result-item {
       margin: 4px 0;
     }
+    /* サブエリアの入力フォームを初期状態で非表示 */
+    #sub-area-container {
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -87,10 +91,13 @@
       <option value="">まずエリアを選択してください</option>
     </select>
 
-    <label for="sub-area-select">サブエリアを選択：</label>
-    <select id="sub-area-select" disabled>
-      <option value="">サブエリアを選択してください</option>
-    </select>
+    <!-- サブエリアの入力フォーム（初期状態で非表示） -->
+    <div id="sub-area-container">
+      <label for="sub-area-select">サブエリアを選択：</label>
+      <select id="sub-area-select">
+        <option value="">サブエリアを選択してください</option>
+      </select>
+    </div>
 
     <button onclick="searchSchedule()">検索</button>
     <div id="result"></div>
