@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
     const areaSelect = document.getElementById("area-select");
     const regionSelect = document.getElementById("region-select");
+    const subAreaContainer = document.getElementById("sub-area-container");
     const subAreaSelect = document.getElementById("sub-area-select");
     const resultDiv = document.getElementById("result");
 
@@ -26,8 +27,9 @@ document.addEventListener("DOMContentLoaded", function () {
     areaSelect.addEventListener("change", function () {
         const selectedArea = areaSelect.value;
         regionSelect.innerHTML = "<option value=''>地域を選択してください</option>";
+        // サブエリアは初期状態で非表示にする
         subAreaSelect.innerHTML = "<option value=''>サブエリアを選択してください</option>";
-        subAreaSelect.disabled = true;
+        subAreaContainer.style.display = "none";
 
         if (selectedArea && deliveryData[selectedArea]) {
             Object.keys(deliveryData[selectedArea]).forEach(region => {
@@ -42,7 +44,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // 地域選択時：対象地域（あきる野市、青梅市、西多摩郡日の出町、八王子市）の場合はサブエリア選択肢を更新
+    // 地域選択時：対象地域（あきる野市、青梅市、西多摩郡日の出町、八王子市）の場合はサブエリア選択肢を更新＆表示
     regionSelect.addEventListener("change", function () {
         const selectedArea = areaSelect.value;
         const selectedRegion = regionSelect.value;
@@ -57,12 +59,12 @@ document.addEventListener("DOMContentLoaded", function () {
                     option.textContent = sub;
                     subAreaSelect.appendChild(option);
                 });
-                subAreaSelect.disabled = false;
+                subAreaContainer.style.display = "block";
             } else {
-                subAreaSelect.disabled = true;
+                subAreaContainer.style.display = "none";
             }
         } else {
-            subAreaSelect.disabled = true;
+            subAreaContainer.style.display = "none";
         }
     });
 
