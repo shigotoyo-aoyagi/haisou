@@ -12,7 +12,6 @@ document.addEventListener("DOMContentLoaded", function () {
         try {
             const [tokyo23, tokyoShibu, routeDelivery] = await Promise.all([
                 fetch("tokyo_23ku.json").then(res => res.json()),
-                fetch("tokyo_shibu.json").then(res => res.json()),
                 fetch("route_delivery.json").then(res => res.json())
             ]);
             // 自社便データを統合
