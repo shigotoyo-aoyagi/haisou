@@ -84,10 +84,10 @@
       color: #333;
     }
     .schedule-weekday {
-      background-color: #e0f7fa; /* 明るいシアン */
+      background-color: #e0f7fa;
     }
     .schedule-saturday {
-      background-color: #ffe082; /* 明るいアンバー */
+      background-color: #ffe082;
     }
     .day-label {
       font-weight: bold;
@@ -102,19 +102,25 @@
 <body>
   <div class="container">
     <h2>配送スケジュール検索</h2>
+    <!-- 追加：都道府県選択 -->
+    <label for="prefecture-select">都道府県を選択：</label>
+    <select id="prefecture-select">
+      <option value="">都道府県を選択してください</option>
+      <option value="tokyo">東京都</option>
+      <option value="kanagawa">神奈川県</option>
+    </select>
+
     <label for="area-select">エリアを選択：</label>
-    <select id="area-select">
-      <option value="">エリアを選択してください</option>
-      <option value="東京都23区">東京都23区</option>
-      <option value="東京都（23区外）">東京都（23区外）</option>
+    <select id="area-select" disabled>
+      <option value="">都道府県を選択してください</option>
     </select>
 
     <label for="region-select">地域を選択：</label>
     <select id="region-select" disabled>
-      <option value="">まずエリアを選択してください</option>
+      <option value="">エリアを選択してください</option>
     </select>
 
-    <!-- サブエリア入力フォーム（対象地域のみ表示） -->
+    <!-- サブエリア入力フォーム：対象地域のみ表示 -->
     <div id="sub-area-container">
       <label for="sub-area-select">サブエリアを選択：</label>
       <select id="sub-area-select">
