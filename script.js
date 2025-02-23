@@ -16,6 +16,10 @@ document.addEventListener("DOMContentLoaded", function () {
       fileName = "tokyo.json";
     } else if (prefecture === "kanagawa") {
       fileName = "kanagawa.json";
+    } else if (prefecture === "saitama") {
+      fileName = "saitama.json";
+    } else if (prefecture === "chiba") {
+      fileName = "chiba.json";
     } else {
       return;
     }
@@ -37,7 +41,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (currentPrefecture) {
       await loadDeliveryData(currentPrefecture);
-      // 東京都の場合は、tokyo.jsonのキー（例："東京都23区"、"東京都（23区外）"）をエリアに設定
+      // 東京都は専用構造（例："東京都23区", "東京都（23区外）"）
       if (currentPrefecture === "tokyo") {
         Object.keys(deliveryData).forEach(area => {
           const option = document.createElement("option");
@@ -46,8 +50,8 @@ document.addEventListener("DOMContentLoaded", function () {
           areaSelect.appendChild(option);
         });
       }
-      // 神奈川県の場合は、kanagawa.jsonのトップレベルキー（各自治体名）をエリアに設定
-      else if (currentPrefecture === "kanagawa") {
+      // 神奈川、埼玉、千葉の場合はトップレベルキーが自治体名
+      else if (["kanagawa", "saitama", "chiba"].includes(currentPrefecture)) {
         Object.keys(deliveryData).forEach(muni => {
           const option = document.createElement("option");
           option.value = muni;
@@ -56,6 +60,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
       }
       areaSelect.disabled = false;
+      // 地域選択は初期状態は有効。後続処理で構造に応じて制御
       regionSelect.disabled = false;
     } else {
       areaSelect.disabled = true;
@@ -76,8 +81,8 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
+    // 東京都の場合は、deliveryData[selectedArea]は地域（区・市）のオブジェクト
     if (currentPrefecture === "tokyo") {
-      // tokyo.jsonの場合、deliveryData[selectedArea]は地域（区や市）のオブジェクト
       Object.keys(deliveryData[selectedArea]).forEach(region => {
         const option = document.createElement("option");
         option.value = region;
@@ -85,16 +90,16 @@ document.addEventListener("DOMContentLoaded", function () {
         regionSelect.appendChild(option);
       });
       regionSelect.disabled = false;
-    } else if (currentPrefecture === "kanagawa") {
-      // kanagawa.jsonの場合、対象自治体によっては、直接スケジュールが設定されているか、または更に地域分けされているかを判定
+    }
+    // 他都県（神奈川、埼玉、千葉）は、各自治体のデータ構造に応じて処理
+    else if (["kanagawa", "saitama", "chiba"].includes(currentPrefecture)) {
       const data = deliveryData[selectedArea];
       const keys = Object.keys(data);
+      // 直接配送スケジュールが設定されている場合（キーに「締め」が含まれる等）
       if (keys.length > 0 && keys[0].includes("締め")) {
-        // キーに「締め」が含まれているなら直接スケジュールが設定されているとみなし、地域選択は不要
         regionSelect.innerHTML = "<option value=''>直接データあり</option>";
         regionSelect.disabled = true;
       } else {
-        // そうでなければ、地域選択用に子キーを表示
         Object.keys(data).forEach(region => {
           const option = document.createElement("option");
           option.value = region;
@@ -128,7 +133,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // 配送便のスケジュール表示用フォーマット関数
+  // 配送スケジュール表示用フォーマット関数
   function formatScheduleItem(time, schedule) {
     const weekday = schedule["平日"] || "なし";
     const saturday = schedule["土曜日"] || "なし";
@@ -176,9 +181,10 @@ document.addEventListener("DOMContentLoaded", function () {
         resultDiv.innerHTML = "<p>該当するデータがありません。</p>";
         return;
       }
-    } else if (selectedPrefecture === "kanagawa") {
+    }
+    else if (["kanagawa", "saitama", "chiba"].includes(selectedPrefecture)) {
+      // 地域選択不要の場合（regionSelect.disabledが true の場合）
       if (regionSelect.disabled) {
-        // 地域選択不要の場合
         scheduleData = deliveryData[selectedArea];
         resultDiv.innerHTML = `<div class="result-header">${selectedArea} の配送スケジュール</div>`;
       } else {
