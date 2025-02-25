@@ -33,33 +33,38 @@ document.addEventListener("DOMContentLoaded", function () {
   // 都道府県選択時の処理
   prefectureSelect.addEventListener("change", async function () {
     currentPrefecture = prefectureSelect.value;
+    
+    // エリア・地域のリストを初期化
     areaSelect.innerHTML = "<option value=''>エリアを選択してください</option>";
     regionSelect.innerHTML = "<option value=''>地域を選択してください</option>";
     subAreaSelect.innerHTML = "<option value=''>サブエリアを選択してください</option>";
     subAreaContainer.style.display = "none";
     resultDiv.innerHTML = "";
 
-    if (currentPrefecture) {
-      await loadDeliveryData(currentPrefecture);
-
-      // エリア選択の更新
-      if (deliveryData && Object.keys(deliveryData).length > 0) {
-        Object.keys(deliveryData).forEach(area => {
-          const option = document.createElement("option");
-          option.value = area;
-          option.textContent = area;
-          areaSelect.appendChild(option);
-        });
-        areaSelect.disabled = false;
-      } else {
-        areaSelect.disabled = true;
-      }
-
-      regionSelect.disabled = true; // 地域は最初無効化
-    } else {
+    if (!currentPrefecture) {
       areaSelect.disabled = true;
       regionSelect.disabled = true;
+      return;
     }
+
+    await loadDeliveryData(currentPrefecture);
+
+    // **エリアのリストを正しく設定**
+    if (deliveryData && Object.keys(deliveryData).length > 0) {
+      areaSelect.innerHTML = "<option value=''>エリアを選択してください</option>"; // 初期選択肢を設定
+      Object.keys(deliveryData).forEach(area => {
+        const option = document.createElement("option");
+        option.value = area;
+        option.textContent = area;
+        areaSelect.appendChild(option);
+      });
+      areaSelect.disabled = false;
+    } else {
+      areaSelect.innerHTML = "<option value=''>該当するエリアがありません</option>";
+      areaSelect.disabled = true;
+    }
+
+    regionSelect.disabled = true;
   });
 
   // エリア選択時の処理
@@ -78,7 +83,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const data = deliveryData[selectedArea];
     const keys = Object.keys(data);
 
-    // 直接配送スケジュールが設定されている場合（キーに「締め」が含まれる等）
+    // **地域リストの設定**
     if (keys.length > 0 && keys[0].includes("締め")) {
       regionSelect.innerHTML = "<option value=''>直接データあり</option>";
       regionSelect.disabled = true;
@@ -149,25 +154,16 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     let scheduleData;
-    if (["tokyo", "kanagawa", "saitama", "chiba"].includes(selectedPrefecture)) {
-      if (regionSelect.disabled) {
-        scheduleData = deliveryData[selectedArea];
-        resultDiv.innerHTML = `<div class="result-header">${selectedArea} の配送スケジュール</div>`;
+    if (regionSelect.disabled) {
+      scheduleData = deliveryData[selectedArea];
+      resultDiv.innerHTML = `<div class="result-header">${selectedArea} の配送スケジュール</div>`;
+    } else {
+      if (selectedRegion && deliveryData[selectedArea][selectedRegion]) {
+        scheduleData = deliveryData[selectedArea][selectedRegion];
+        resultDiv.innerHTML = `<div class="result-header">${selectedRegion} の配送スケジュール</div>`;
       } else {
-        if (selectedRegion && deliveryData[selectedArea][selectedRegion]) {
-          if (selectedSubArea &&
-              deliveryData[selectedArea][selectedRegion].subAreas &&
-              deliveryData[selectedArea][selectedRegion].subAreas[selectedSubArea]) {
-            scheduleData = deliveryData[selectedArea][selectedRegion].subAreas[selectedSubArea];
-            resultDiv.innerHTML = `<div class="result-header">${selectedRegion} / ${selectedSubArea}</div>`;
-          } else {
-            scheduleData = deliveryData[selectedArea][selectedRegion];
-            resultDiv.innerHTML = `<div class="result-header">${selectedRegion} の配送スケジュール</div>`;
-          }
-        } else {
-          resultDiv.innerHTML = "<p>該当するデータがありません。</p>";
-          return;
-        }
+        resultDiv.innerHTML = "<p>該当するデータがありません。</p>";
+        return;
       }
     }
 
