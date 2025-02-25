@@ -41,19 +41,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (currentPrefecture) {
       await loadDeliveryData(currentPrefecture);
-      // エリア選択の処理
-if (["tokyo", "kanagawa", "saitama", "chiba"].includes(currentPrefecture)) {
-  Object.keys(deliveryData).forEach(muni => {
-    const option = document.createElement("option");
-    option.value = muni;
-    option.textContent = muni;
-    areaSelect.appendChild(option);
-  });
-}
 
-      areaSelect.disabled = false;
-      // 地域選択は初期状態は有効。後続処理で構造に応じて制御
-      regionSelect.disabled = false;
+      // エリア選択の更新
+      if (deliveryData && Object.keys(deliveryData).length > 0) {
+        Object.keys(deliveryData).forEach(area => {
+          const option = document.createElement("option");
+          option.value = area;
+          option.textContent = area;
+          areaSelect.appendChild(option);
+        });
+        areaSelect.disabled = false;
+      } else {
+        areaSelect.disabled = true;
+      }
+
+      regionSelect.disabled = true; // 地域は最初無効化
     } else {
       areaSelect.disabled = true;
       regionSelect.disabled = true;
@@ -68,37 +70,35 @@ if (["tokyo", "kanagawa", "saitama", "chiba"].includes(currentPrefecture)) {
     subAreaContainer.style.display = "none";
     resultDiv.innerHTML = "";
 
-    if (!selectedArea) {
+    if (!selectedArea || !deliveryData[selectedArea]) {
       regionSelect.disabled = true;
       return;
     }
 
-  // 東京都も他県と同じ処理に統一
-if (["tokyo", "kanagawa", "saitama", "chiba"].includes(currentPrefecture)) {
-  const data = deliveryData[selectedArea];
-  const keys = Object.keys(data);
+    const data = deliveryData[selectedArea];
+    const keys = Object.keys(data);
 
-  // 直接配送スケジュールが設定されている場合（キーに「締め」が含まれる等）
-  if (keys.length > 0 && keys[0].includes("締め")) {
-    regionSelect.innerHTML = "<option value=''>直接データあり</option>";
-    regionSelect.disabled = true;
-  } else {
-    Object.keys(data).forEach(region => {
-      const option = document.createElement("option");
-      option.value = region;
-      option.textContent = region;
-      regionSelect.appendChild(option);
-    });
-    regionSelect.disabled = false;
-  }
-}
-
+    // 直接配送スケジュールが設定されている場合（キーに「締め」が含まれる等）
+    if (keys.length > 0 && keys[0].includes("締め")) {
+      regionSelect.innerHTML = "<option value=''>直接データあり</option>";
+      regionSelect.disabled = true;
+    } else {
+      Object.keys(data).forEach(region => {
+        const option = document.createElement("option");
+        option.value = region;
+        option.textContent = region;
+        regionSelect.appendChild(option);
+      });
+      regionSelect.disabled = false;
+    }
+  });
 
   // 地域選択時の処理（サブエリアが設定されている場合）
   regionSelect.addEventListener("change", function () {
     const selectedArea = areaSelect.value;
     const selectedRegion = regionSelect.value;
     subAreaSelect.innerHTML = "<option value=''>サブエリアを選択してください</option>";
+    
     if (selectedRegion &&
         deliveryData[selectedArea] &&
         deliveryData[selectedArea][selectedRegion] &&
@@ -149,24 +149,7 @@ if (["tokyo", "kanagawa", "saitama", "chiba"].includes(currentPrefecture)) {
     }
 
     let scheduleData;
-    if (selectedPrefecture === "tokyo") {
-      if (selectedRegion && deliveryData[selectedArea][selectedRegion]) {
-        if (selectedSubArea &&
-            deliveryData[selectedArea][selectedRegion].subAreas &&
-            deliveryData[selectedArea][selectedRegion].subAreas[selectedSubArea]) {
-          scheduleData = deliveryData[selectedArea][selectedRegion].subAreas[selectedSubArea];
-          resultDiv.innerHTML = `<div class="result-header">${selectedRegion} / ${selectedSubArea}</div>`;
-        } else {
-          scheduleData = deliveryData[selectedArea][selectedRegion];
-          resultDiv.innerHTML = `<div class="result-header">${selectedRegion} の配送スケジュール</div>`;
-        }
-      } else {
-        resultDiv.innerHTML = "<p>該当するデータがありません。</p>";
-        return;
-      }
-    }
-    else if (["kanagawa", "saitama", "chiba"].includes(selectedPrefecture)) {
-      // 地域選択不要の場合（regionSelect.disabledが true の場合）
+    if (["tokyo", "kanagawa", "saitama", "chiba"].includes(selectedPrefecture)) {
       if (regionSelect.disabled) {
         scheduleData = deliveryData[selectedArea];
         resultDiv.innerHTML = `<div class="result-header">${selectedArea} の配送スケジュール</div>`;
