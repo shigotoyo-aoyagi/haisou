@@ -41,24 +41,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (currentPrefecture) {
       await loadDeliveryData(currentPrefecture);
-      // 東京都は専用構造（例："東京都23区", "東京都（23区外）"）
-      if (currentPrefecture === "tokyo") {
-        Object.keys(deliveryData).forEach(area => {
-          const option = document.createElement("option");
-          option.value = area;
-          option.textContent = area;
-          areaSelect.appendChild(option);
-        });
-      }
-      // 神奈川、埼玉、千葉の場合はトップレベルキーが自治体名
-      else if (["kanagawa", "saitama", "chiba"].includes(currentPrefecture)) {
-        Object.keys(deliveryData).forEach(muni => {
-          const option = document.createElement("option");
-          option.value = muni;
-          option.textContent = muni;
-          areaSelect.appendChild(option);
-        });
-      }
+      // エリア選択の処理
+if (["tokyo", "kanagawa", "saitama", "chiba"].includes(currentPrefecture)) {
+  Object.keys(deliveryData).forEach(muni => {
+    const option = document.createElement("option");
+    option.value = muni;
+    option.textContent = muni;
+    areaSelect.appendChild(option);
+  });
+}
+
       areaSelect.disabled = false;
       // 地域選択は初期状態は有効。後続処理で構造に応じて制御
       regionSelect.disabled = false;
