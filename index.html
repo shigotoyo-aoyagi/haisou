@@ -52,7 +52,6 @@
       margin-top: 20px;
       text-align: left;
     }
-    /* 結果表示用カードスタイル */
     .result-header {
       font-size: 20px;
       font-weight: bold;
@@ -70,7 +69,6 @@
     .result-item {
       margin: 4px 0;
     }
-    /* スケジュール表示（平日と土曜日を分ける） */
     .schedule-container {
       display: flex;
       gap: 10px;
@@ -84,16 +82,15 @@
       color: #333;
     }
     .schedule-weekday {
-      background-color: #e0f7fa; /* 明るいシアン */
+      background-color: #e0f7fa;
     }
     .schedule-saturday {
-      background-color: #ffe082; /* 明るいアンバー */
+      background-color: #ffe082;
     }
     .day-label {
       font-weight: bold;
       margin-right: 5px;
     }
-    /* サブエリア入力フォーム：初期状態は非表示 */
     #sub-area-container {
       display: none;
     }
@@ -102,30 +99,39 @@
 <body>
   <div class="container">
     <h2>配送スケジュール検索</h2>
-    <label for="area-select">エリアを選択：</label>
-    <select id="area-select">
-      <option value="">エリアを選択してください</option>
-      <option value="東京都23区">東京都23区</option>
-      <option value="東京都（23区外）">東京都（23区外）</option>
+    <!-- 都道府県選択 -->
+    <label for="prefecture-select">都道府県を選択：</label>
+    <select id="prefecture-select">
+      <option value="">都道府県を選択してください</option>
+      <option value="tokyo">東京都</option>
+      <option value="kanagawa">神奈川県</option>
+      <option value="saitama">埼玉県</option>
+      <option value="chiba">千葉県</option>
     </select>
-
+    
+    <!-- エリア選択 -->
+    <label for="area-select">エリアを選択：</label>
+    <select id="area-select" disabled>
+      <option value="">エリアを選択してください</option>
+    </select>
+    
+    <!-- 地域選択 -->
     <label for="region-select">地域を選択：</label>
     <select id="region-select" disabled>
-      <option value="">まずエリアを選択してください</option>
+      <option value="">地域を選択してください</option>
     </select>
-
-    <!-- サブエリア入力フォーム（対象地域のみ表示） -->
+    
+    <!-- サブエリア -->
     <div id="sub-area-container">
       <label for="sub-area-select">サブエリアを選択：</label>
       <select id="sub-area-select">
         <option value="">サブエリアを選択してください</option>
       </select>
     </div>
-
+    
     <button onclick="searchSchedule()">検索</button>
     <div id="result"></div>
   </div>
-
   <script src="script.js"></script>
 </body>
 </html>

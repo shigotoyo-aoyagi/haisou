@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
+  const prefectureSelect = document.getElementById("prefecture-select");
   const areaSelect = document.getElementById("area-select");
   const regionSelect = document.getElementById("region-select");
   const subAreaContainer = document.getElementById("sub-area-container");
@@ -6,63 +7,121 @@ document.addEventListener("DOMContentLoaded", function () {
   const resultDiv = document.getElementById("result");
 
   let deliveryData = {};
+  let currentPrefecture = "";
 
-  // JSONファイル（tokyo.json）のデータをロード
-  async function loadDeliveryData() {
+  // 指定された都道府県に応じたJSONファイルをロードする関数
+  async function loadDeliveryData(prefecture) {
+    let fileName = "";
+    if (prefecture === "tokyo") {
+      fileName = "tokyo.json";
+    } else if (prefecture === "kanagawa") {
+      fileName = "kanagawa.json";
+    } else if (prefecture === "saitama") {
+      fileName = "saitama.json";
+    } else if (prefecture === "chiba") {
+      fileName = "chiba.json";
+    } else {
+      return;
+    }
     try {
-      const tokyoData = await fetch("tokyo.json").then(res => res.json());
-      deliveryData = tokyoData;
+      deliveryData = await fetch(fileName).then(res => res.json());
     } catch (error) {
       console.error("データの読み込みに失敗しました", error);
     }
   }
-  loadDeliveryData();
 
-  // エリア選択時：地域とサブエリアの選択肢を初期化して更新
+  // 都道府県選択時の処理
+  prefectureSelect.addEventListener("change", async function () {
+    currentPrefecture = prefectureSelect.value;
+    
+    // エリア・地域のリストを初期化
+    areaSelect.innerHTML = "<option value=''>エリアを選択してください</option>";
+    regionSelect.innerHTML = "<option value=''>地域を選択してください</option>";
+    subAreaSelect.innerHTML = "<option value=''>サブエリアを選択してください</option>";
+    subAreaContainer.style.display = "none";
+    resultDiv.innerHTML = "";
+
+    if (!currentPrefecture) {
+      areaSelect.disabled = true;
+      regionSelect.disabled = true;
+      return;
+    }
+
+    await loadDeliveryData(currentPrefecture);
+
+    // **エリアのリストを正しく設定**
+    if (deliveryData && Object.keys(deliveryData).length > 0) {
+      areaSelect.innerHTML = "<option value=''>エリアを選択してください</option>"; // 初期選択肢を設定
+      Object.keys(deliveryData).forEach(area => {
+        const option = document.createElement("option");
+        option.value = area;
+        option.textContent = area;
+        areaSelect.appendChild(option);
+      });
+      areaSelect.disabled = false;
+    } else {
+      areaSelect.innerHTML = "<option value=''>該当するエリアがありません</option>";
+      areaSelect.disabled = true;
+    }
+
+    regionSelect.disabled = true;
+  });
+
+  // エリア選択時の処理
   areaSelect.addEventListener("change", function () {
     const selectedArea = areaSelect.value;
     regionSelect.innerHTML = "<option value=''>地域を選択してください</option>";
     subAreaSelect.innerHTML = "<option value=''>サブエリアを選択してください</option>";
     subAreaContainer.style.display = "none";
+    resultDiv.innerHTML = "";
 
-    if (selectedArea && deliveryData[selectedArea]) {
-      Object.keys(deliveryData[selectedArea]).forEach(region => {
+    if (!selectedArea || !deliveryData[selectedArea]) {
+      regionSelect.disabled = true;
+      return;
+    }
+
+    const data = deliveryData[selectedArea];
+    const keys = Object.keys(data);
+
+    // **地域リストの設定**
+    if (keys.length > 0 && keys[0].includes("締め")) {
+      regionSelect.innerHTML = "<option value=''>直接データあり</option>";
+      regionSelect.disabled = true;
+    } else {
+      Object.keys(data).forEach(region => {
         const option = document.createElement("option");
         option.value = region;
         option.textContent = region;
         regionSelect.appendChild(option);
       });
       regionSelect.disabled = false;
-    } else {
-      regionSelect.disabled = true;
     }
   });
 
-  // 地域選択時：対象地域（あきる野市、青梅市、西多摩郡日の出町、八王子市）の場合はサブエリアの選択肢を更新＆表示
+  // 地域選択時の処理（サブエリアが設定されている場合）
   regionSelect.addEventListener("change", function () {
     const selectedArea = areaSelect.value;
     const selectedRegion = regionSelect.value;
     subAreaSelect.innerHTML = "<option value=''>サブエリアを選択してください</option>";
-    // 対象地域ならサブエリアフォームを表示
-    if (["あきる野市", "青梅市", "西多摩郡日の出町", "八王子市"].includes(selectedRegion)) {
-      if (deliveryData[selectedArea][selectedRegion].subAreas) {
-        const subAreas = Object.keys(deliveryData[selectedArea][selectedRegion].subAreas);
-        subAreas.forEach(sub => {
-          const option = document.createElement("option");
-          option.value = sub;
-          option.textContent = sub;
-          subAreaSelect.appendChild(option);
-        });
-        subAreaContainer.style.display = "block";
-      } else {
-        subAreaContainer.style.display = "none";
-      }
+    
+    if (selectedRegion &&
+        deliveryData[selectedArea] &&
+        deliveryData[selectedArea][selectedRegion] &&
+        deliveryData[selectedArea][selectedRegion].subAreas) {
+      const subAreas = Object.keys(deliveryData[selectedArea][selectedRegion].subAreas);
+      subAreas.forEach(sub => {
+        const option = document.createElement("option");
+        option.value = sub;
+        option.textContent = sub;
+        subAreaSelect.appendChild(option);
+      });
+      subAreaContainer.style.display = "block";
     } else {
       subAreaContainer.style.display = "none";
     }
   });
 
-  // 各配送便のスケジュールを整形して返す関数（平日と土曜日を分ける）
+  // 配送スケジュール表示用フォーマット関数
   function formatScheduleItem(time, schedule) {
     const weekday = schedule["平日"] || "なし";
     const saturday = schedule["土曜日"] || "なし";
@@ -81,38 +140,63 @@ document.addEventListener("DOMContentLoaded", function () {
     `;
   }
 
-  // 配送スケジュールを検索・表示
-  function searchSchedule() {
-    const selectedArea = areaSelect.value;
-    const selectedRegion = regionSelect.value;
-    const selectedSubArea = subAreaSelect.value;
-    resultDiv.innerHTML = "";
+// 検索処理
+function searchSchedule() {
+  const selectedPrefecture = currentPrefecture;
+  const selectedArea = areaSelect.value;
+  let selectedRegion = regionSelect.value;
+  const selectedSubArea = subAreaSelect.value;
+  resultDiv.innerHTML = "";
 
-    if (selectedSubArea && deliveryData[selectedArea][selectedRegion].subAreas[selectedSubArea]) {
-      let subData = deliveryData[selectedArea][selectedRegion].subAreas[selectedSubArea];
-      let scheduleHTML = `<div class="result-header">${selectedRegion} / ${selectedSubArea}</div>`;
-      if (typeof subData === "string") {
-        // サブエリアが文字列の場合（例："路線便対応"）
-        scheduleHTML += `<div class="result-card"><div class="result-item">${subData}</div></div>`;
-      } else {
-        // サブエリアがオブジェクトの場合
-        for (let time in subData) {
-          scheduleHTML += formatScheduleItem(time, subData[time]);
-        }
-      }
-      resultDiv.innerHTML = scheduleHTML;
-    } else if (selectedArea && selectedRegion && deliveryData[selectedArea] && deliveryData[selectedArea][selectedRegion]) {
-      let scheduleData = deliveryData[selectedArea][selectedRegion];
-      let scheduleHTML = `<div class="result-header">${selectedRegion} の配送スケジュール</div>`;
-      for (let time in scheduleData) {
-        if (time === "subAreas") continue; // サブエリア情報は除外
-        scheduleHTML += formatScheduleItem(time, scheduleData[time]);
-      }
-      resultDiv.innerHTML = scheduleHTML;
+  if (!selectedPrefecture || !selectedArea) {
+    resultDiv.innerHTML = "<p>該当するデータがありません。</p>";
+    return;
+  }
+
+  let scheduleData;
+  if (regionSelect.disabled) {
+    scheduleData = deliveryData[selectedArea];
+    resultDiv.innerHTML = `<div class="result-header">${selectedArea} の配送スケジュール</div>`;
+  } else {
+    if (selectedRegion && deliveryData[selectedArea][selectedRegion]) {
+      scheduleData = deliveryData[selectedArea][selectedRegion];
+      resultDiv.innerHTML = `<div class="result-header">${selectedRegion} の配送スケジュール</div>`;
     } else {
       resultDiv.innerHTML = "<p>該当するデータがありません。</p>";
+      return;
     }
   }
 
+  // サブエリアが選択され、かつサブエリア情報が存在する場合の処理
+  if (selectedSubArea && scheduleData.subAreas && scheduleData.subAreas[selectedSubArea]) {
+    let subData = scheduleData.subAreas[selectedSubArea];
+    let scheduleHTML = `<div class="result-header">${selectedRegion} / ${selectedSubArea}</div>`;
+    if (typeof subData === "string") {
+      // サブエリアが文字列の場合（例："路線便対応"）→1枚のカードで表示
+      scheduleHTML += `<div class="result-card"><div class="result-item">${subData}</div></div>`;
+    } else {
+      for (let time in subData) {
+        scheduleHTML += formatScheduleItem(time, subData[time]);
+      }
+    }
+    resultDiv.innerHTML = scheduleHTML;
+  } else {
+    // サブエリア以外の配送便情報の表示
+    // もしscheduleData自体が文字列なら、そのまま1枚のカードで表示
+    if (typeof scheduleData === "string") {
+      resultDiv.innerHTML += `<div class="result-card"><div class="result-item">${scheduleData}</div></div>`;
+    } else {
+      for (let time in scheduleData) {
+        if (time === "subAreas") continue; // サブエリア情報は除外
+        if (typeof scheduleData[time] === "string") {
+          // 文字列の場合は1枚のカードで表示（例："路線便対応"）
+          resultDiv.innerHTML += `<div class="result-card"><div class="result-item">${scheduleData[time]}</div></div>`;
+        } else {
+          resultDiv.innerHTML += formatScheduleItem(time, scheduleData[time]);
+        }
+      }
+    }
+  }
+}
   window.searchSchedule = searchSchedule;
 });
