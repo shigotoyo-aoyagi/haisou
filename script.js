@@ -140,7 +140,7 @@ document.addEventListener("DOMContentLoaded", function () {
     `;
   }
 
- // 検索処理
+// 検索処理
 function searchSchedule() {
   const selectedPrefecture = currentPrefecture;
   const selectedArea = areaSelect.value;
@@ -172,7 +172,7 @@ function searchSchedule() {
     let subData = scheduleData.subAreas[selectedSubArea];
     let scheduleHTML = `<div class="result-header">${selectedRegion} / ${selectedSubArea}</div>`;
     if (typeof subData === "string") {
-      // サブエリアが文字列の場合（例："路線便対応"）
+      // サブエリアが文字列の場合（例："路線便対応"）→1枚のカードで表示
       scheduleHTML += `<div class="result-card"><div class="result-item">${subData}</div></div>`;
     } else {
       for (let time in subData) {
@@ -181,14 +181,19 @@ function searchSchedule() {
     }
     resultDiv.innerHTML = scheduleHTML;
   } else {
-    // サブエリア以外の配送便情報を表示
-    for (let time in scheduleData) {
-      if (time === "subAreas") continue; // サブエリア情報は除外
-      if (typeof scheduleData[time] === "string") {
-        // もし配送便のデータが文字列の場合（例："路線便対応"）
-        resultDiv.innerHTML += `<div class="result-card"><div class="result-item">${scheduleData[time]}</div></div>`;
-      } else {
-        resultDiv.innerHTML += formatScheduleItem(time, scheduleData[time]);
+    // サブエリア以外の配送便情報の表示
+    // もしscheduleData自体が文字列なら、そのまま1枚のカードで表示
+    if (typeof scheduleData === "string") {
+      resultDiv.innerHTML += `<div class="result-card"><div class="result-item">${scheduleData}</div></div>`;
+    } else {
+      for (let time in scheduleData) {
+        if (time === "subAreas") continue; // サブエリア情報は除外
+        if (typeof scheduleData[time] === "string") {
+          // 文字列の場合は1枚のカードで表示（例："路線便対応"）
+          resultDiv.innerHTML += `<div class="result-card"><div class="result-item">${scheduleData[time]}</div></div>`;
+        } else {
+          resultDiv.innerHTML += formatScheduleItem(time, scheduleData[time]);
+        }
       }
     }
   }
