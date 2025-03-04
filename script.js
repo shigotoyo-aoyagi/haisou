@@ -140,7 +140,7 @@ document.addEventListener("DOMContentLoaded", function () {
     `;
   }
 
-  // 検索処理
+ // 検索処理
 function searchSchedule() {
   const selectedPrefecture = currentPrefecture;
   const selectedArea = areaSelect.value;
@@ -170,23 +170,26 @@ function searchSchedule() {
   // サブエリアが選択され、かつサブエリア情報が存在する場合の処理
   if (selectedSubArea && scheduleData.subAreas && scheduleData.subAreas[selectedSubArea]) {
     let subData = scheduleData.subAreas[selectedSubArea];
-    // ヘッダーに「地域 / サブエリア」の情報を表示
     let scheduleHTML = `<div class="result-header">${selectedRegion} / ${selectedSubArea}</div>`;
     if (typeof subData === "string") {
       // サブエリアが文字列の場合（例："路線便対応"）
       scheduleHTML += `<div class="result-card"><div class="result-item">${subData}</div></div>`;
     } else {
-      // サブエリアがオブジェクトの場合
       for (let time in subData) {
         scheduleHTML += formatScheduleItem(time, subData[time]);
       }
     }
     resultDiv.innerHTML = scheduleHTML;
   } else {
-    // 各配送便のスケジュール表示（サブエリア以外）
+    // サブエリア以外の配送便情報を表示
     for (let time in scheduleData) {
       if (time === "subAreas") continue; // サブエリア情報は除外
-      resultDiv.innerHTML += formatScheduleItem(time, scheduleData[time]);
+      if (typeof scheduleData[time] === "string") {
+        // もし配送便のデータが文字列の場合（例："路線便対応"）
+        resultDiv.innerHTML += `<div class="result-card"><div class="result-item">${scheduleData[time]}</div></div>`;
+      } else {
+        resultDiv.innerHTML += formatScheduleItem(time, scheduleData[time]);
+      }
     }
   }
 }
