@@ -34,9 +34,9 @@ document.addEventListener("DOMContentLoaded", function () {
   prefectureSelect.addEventListener("change", async function () {
     currentPrefecture = prefectureSelect.value;
     
-    // エリア・地域のリストを初期化
-    areaSelect.innerHTML = "<option value=''>エリアを選択してください</option>";
-    regionSelect.innerHTML = "<option value=''>地域を選択してください</option>";
+    // 市町村・エリアのリストを初期化
+    areaSelect.innerHTML = "<option value=''>市町村を選択してください</option>";
+    regionSelect.innerHTML = "<option value=''>エリアを選択してください</option>";
     subAreaSelect.innerHTML = "<option value=''>サブエリアを選択してください</option>";
     subAreaContainer.style.display = "none";
     resultDiv.innerHTML = "";
@@ -51,7 +51,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // **エリアのリストを正しく設定**
     if (deliveryData && Object.keys(deliveryData).length > 0) {
-      areaSelect.innerHTML = "<option value=''>エリアを選択してください</option>"; // 初期選択肢を設定
+      areaSelect.innerHTML = "<option value=''>市町村を選択してください</option>"; // 初期選択肢を設定
       Object.keys(deliveryData).forEach(area => {
         const option = document.createElement("option");
         option.value = area;
@@ -60,17 +60,17 @@ document.addEventListener("DOMContentLoaded", function () {
       });
       areaSelect.disabled = false;
     } else {
-      areaSelect.innerHTML = "<option value=''>該当するエリアがありません</option>";
+      areaSelect.innerHTML = "<option value=''>該当する市町村がありません</option>";
       areaSelect.disabled = true;
     }
 
     regionSelect.disabled = true;
   });
 
-  // エリア選択時の処理
+  // 市町村選択時の処理
   areaSelect.addEventListener("change", function () {
     const selectedArea = areaSelect.value;
-    regionSelect.innerHTML = "<option value=''>地域を選択してください</option>";
+    regionSelect.innerHTML = "<option value=''>エリアを選択してください</option>";
     subAreaSelect.innerHTML = "<option value=''>サブエリアを選択してください</option>";
     subAreaContainer.style.display = "none";
     resultDiv.innerHTML = "";
@@ -85,7 +85,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // **地域リストの設定**
     if (keys.length > 0 && keys[0].includes("締め")) {
-      regionSelect.innerHTML = "<option value=''>直接データあり</option>";
+      regionSelect.innerHTML = "<option value=''>選択不要</option>";
       regionSelect.disabled = true;
     } else {
       Object.keys(data).forEach(region => {
