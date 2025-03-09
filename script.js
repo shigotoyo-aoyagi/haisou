@@ -85,7 +85,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // **地域リストの設定**
     if (keys.length > 0 && keys[0].includes("締め")) {
-      regionSelect.innerHTML = "<option value=''>直接データあり</option>";
+      regionSelect.innerHTML = "<option value=''>選択不要</option>";
       regionSelect.disabled = true;
     } else {
       Object.keys(data).forEach(region => {
