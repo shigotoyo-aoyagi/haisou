@@ -5,92 +5,128 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>配送スケジュール検索</title>
   <style>
+    /* カラーパレット定義 */
+    :root {
+      --primary-color: #00796b;        /* メインのアクセント色 */
+      --secondary-color: #004d40;      /* 強調文字色 */
+      --accent-color: #26a69a;         /* ボタンなどのアクセント */
+      --accent-light: #66bb6a;         /* ボタンホバー時 */
+      --bg-gradient-start: #e0f7fa;     /* 背景グラデーション開始色 */
+      --bg-gradient-end: #ffffff;       /* 背景グラデーション終了色 */
+      --card-bg: #e0f2f1;              /* 結果カード背景 */
+      --border-color: #b2dfdb;         /* ボーダー色 */
+      --white: #ffffff;
+    }
+
     body {
-      background: #f9f9f9;
+      background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
       font-family: 'Segoe UI', sans-serif;
       margin: 0;
       padding: 0;
     }
+
     .container {
       max-width: 600px;
-      margin: 40px auto;
-      padding: 20px;
-      background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      margin: 60px auto;
+      padding: 30px;
+      background: var(--white);
+      border-radius: 10px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
       text-align: center;
     }
+
     h2 {
-      color: #333;
+      color: var(--primary-color);
+      margin-bottom: 20px;
     }
+
     label {
       display: block;
-      margin-top: 10px;
-      font-weight: bold;
+      margin-bottom: 5px;
+      font-weight: 600;
       text-align: left;
+      color: var(--secondary-color);
     }
+
     select, button {
       width: 100%;
-      padding: 10px;
-      margin: 10px 0;
+      padding: 12px;
+      margin: 10px 0 20px 0;
       font-size: 16px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
       box-sizing: border-box;
     }
+
+    select {
+      background: var(--white);
+      appearance: none;
+    }
+
     button {
-      background: #4CAF50;
-      color: #fff;
+      background: linear-gradient(90deg, var(--accent-color), var(--accent-light));
+      color: var(--white);
       border: none;
       cursor: pointer;
       transition: background 0.3s;
+      font-size: 18px;
     }
+
     button:hover {
-      background: #45a049;
+      background: linear-gradient(90deg, #2bbbad, #80e27e);
     }
+
     #result {
-      margin-top: 20px;
+      margin-top: 30px;
       text-align: left;
     }
+
     .result-header {
-      font-size: 20px;
+      font-size: 22px;
       font-weight: bold;
-      margin-bottom: 12px;
-      border-bottom: 2px solid #eee;
-      padding-bottom: 4px;
+      margin-bottom: 15px;
+      color: var(--primary-color);
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 8px;
     }
+
     .result-card {
-      background: #f5f5f5;
-      padding: 12px;
-      border: 1px solid #ddd;
-      margin-bottom: 8px;
-      border-radius: 4px;
+      background: var(--card-bg);
+      padding: 15px;
+      border: 1px solid var(--border-color);
+      margin-bottom: 10px;
+      border-radius: 6px;
     }
+
     .result-item {
-      margin: 4px 0;
+      margin: 5px 0;
     }
+
     .schedule-container {
       display: flex;
-      gap: 10px;
-      margin-top: 5px;
+      gap: 15px;
+      margin-top: 8px;
     }
+
     .schedule-day {
       flex: 1;
-      padding: 5px;
-      border-radius: 4px;
-      font-size: 14px;
-      color: #333;
+      padding: 8px;
+      border-radius: 6px;
+      font-size: 15px;
+      text-align: center;
+      font-weight: 500;
     }
+
     .schedule-weekday {
-      background-color: #e0f7fa;
+      background-color: var(--border-color);
+      color: var(--secondary-color);
     }
+
     .schedule-saturday {
       background-color: #ffe082;
+      color: #ff6f00;
     }
-    .day-label {
-      font-weight: bold;
-      margin-right: 5px;
-    }
+
     #sub-area-container {
       display: none;
     }
