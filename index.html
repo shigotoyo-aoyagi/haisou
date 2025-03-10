@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>配送スケジュール検索 with Truck Animation</title>
   <style>
-    /* サイト全体のスタイル（おしゃれでさわやかなイメージ） */
+    /* サイト全体のスタイル（さわやかなイメージ） */
     :root {
       --primary-color: #00796b;
       --secondary-color: #004d40;
@@ -93,7 +93,6 @@
     }
     .schedule-container {
       display: flex;
-      flex-direction: column;  /* 上下に並べる */
       gap: 10px;
       margin-top: 8px;
     }
@@ -130,9 +129,10 @@
     #truck-animation .truck {
       position: absolute;
       bottom: 0;
-      left: -150px;
+      left: -150px;  /* 初期位置：画面左外側 */
       width: 150px;
-      animation: moveTruck 8s linear infinite;
+      /* 1回だけ実行し、最後の状態（右端外側）を保持 */
+      animation: moveTruck 8s linear 1 forwards;
     }
     @keyframes moveTruck {
       0% {
@@ -183,12 +183,12 @@
   
   <!-- トラックアニメーションの要素 -->
   <div id="truck-animation">
-    <!-- シンプルなトラックを表現するSVG -->
+    <!-- 荷台が赤、運転室が灰色のトラックを表現するSVG -->
     <svg class="truck" viewBox="0 0 500 450" xmlns="http://www.w3.org/2000/svg">
-      <!-- トラック本体 -->
-      <rect x="20" y="200" width="260" height="100" fill="#00796b"/>
-      <!-- キャブ（運転室） -->
-      <rect x="280" y="250" width="180" height="70" fill="#004d40"/>
+      <!-- 荷台（赤） -->
+      <rect x="20" y="200" width="260" height="100" fill="#ff0000"/>
+      <!-- キャブ（運転室、灰色） -->
+      <rect x="280" y="250" width="150" height="70" fill="#808080"/>
       <!-- タイヤ -->
       <circle cx="80" cy="320" r="30" fill="#555"/>
       <circle cx="240" cy="320" r="30" fill="#555"/>
@@ -196,189 +196,6 @@
     </svg>
   </div>
   
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const prefectureSelect = document.getElementById("prefecture-select");
-      const areaSelect = document.getElementById("area-select");
-      const regionSelect = document.getElementById("region-select");
-      const subAreaContainer = document.getElementById("sub-area-container");
-      const subAreaSelect = document.getElementById("sub-area-select");
-      const resultDiv = document.getElementById("result");
-
-      let deliveryData = {};
-      let currentPrefecture = "";
-
-      // 指定された都道府県に応じたJSONファイルをロードする関数
-      async function loadDeliveryData(prefecture) {
-        let fileName = "";
-        if (prefecture === "tokyo") {
-          fileName = "tokyo.json";
-        } else if (prefecture === "kanagawa") {
-          fileName = "kanagawa.json";
-        } else if (prefecture === "saitama") {
-          fileName = "saitama.json";
-        } else if (prefecture === "chiba") {
-          fileName = "chiba.json";
-        } else {
-          return;
-        }
-        try {
-          deliveryData = await fetch(fileName).then(res => res.json());
-        } catch (error) {
-          console.error("データの読み込みに失敗しました", error);
-        }
-      }
-
-      // 都道府県選択時の処理
-      prefectureSelect.addEventListener("change", async function () {
-        currentPrefecture = prefectureSelect.value;
-        areaSelect.innerHTML = "<option value=''>市町村を選択してください</option>";
-        regionSelect.innerHTML = "<option value=''>エリアを選択してください</option>";
-        subAreaSelect.innerHTML = "<option value=''>サブエリアを選択してください</option>";
-        subAreaContainer.style.display = "none";
-        resultDiv.innerHTML = "";
-        if (!currentPrefecture) {
-          areaSelect.disabled = true;
-          regionSelect.disabled = true;
-          return;
-        }
-        await loadDeliveryData(currentPrefecture);
-        if (deliveryData && Object.keys(deliveryData).length > 0) {
-          areaSelect.innerHTML = "<option value=''>市町村を選択してください</option>";
-          Object.keys(deliveryData).forEach(area => {
-            const option = document.createElement("option");
-            option.value = area;
-            option.textContent = area;
-            areaSelect.appendChild(option);
-          });
-          areaSelect.disabled = false;
-        } else {
-          areaSelect.innerHTML = "<option value=''>該当する市町村がありません</option>";
-          areaSelect.disabled = true;
-        }
-        regionSelect.disabled = true;
-      });
-
-      // 市町村選択時の処理
-      areaSelect.addEventListener("change", function () {
-        const selectedArea = areaSelect.value;
-        regionSelect.innerHTML = "<option value=''>エリアを選択してください</option>";
-        subAreaSelect.innerHTML = "<option value=''>サブエリアを選択してください</option>";
-        subAreaContainer.style.display = "none";
-        resultDiv.innerHTML = "";
-        if (!selectedArea || !deliveryData[selectedArea]) {
-          regionSelect.disabled = true;
-          return;
-        }
-        const data = deliveryData[selectedArea];
-        const keys = Object.keys(data);
-        if (keys.length > 0 && keys[0].includes("締め")) {
-          regionSelect.innerHTML = "<option value=''>選択不要</option>";
-          regionSelect.disabled = true;
-        } else {
-          Object.keys(data).forEach(region => {
-            const option = document.createElement("option");
-            option.value = region;
-            option.textContent = region;
-            regionSelect.appendChild(option);
-          });
-          regionSelect.disabled = false;
-        }
-      });
-
-      // 地域選択時の処理（サブエリアが設定されている場合）
-      regionSelect.addEventListener("change", function () {
-        const selectedArea = areaSelect.value;
-        const selectedRegion = regionSelect.value;
-        subAreaSelect.innerHTML = "<option value=''>サブエリアを選択してください</option>";
-        if (selectedRegion &&
-            deliveryData[selectedArea] &&
-            deliveryData[selectedArea][selectedRegion] &&
-            deliveryData[selectedArea][selectedRegion].subAreas) {
-          const subAreas = Object.keys(deliveryData[selectedArea][selectedRegion].subAreas);
-          subAreas.forEach(sub => {
-            const option = document.createElement("option");
-            option.value = sub;
-            option.textContent = sub;
-            subAreaSelect.appendChild(option);
-          });
-          subAreaContainer.style.display = "block";
-        } else {
-          subAreaContainer.style.display = "none";
-        }
-      });
-
-      // 配送スケジュール表示用フォーマット関数
-      function formatScheduleItem(time, schedule) {
-        const weekday = schedule["平日"] || "なし";
-        const saturday = schedule["土曜日"] || "なし";
-        return `
-          <div class="result-card">
-            <div class="result-item"><strong>${time}</strong></div>
-            <div class="schedule-container">
-              <div class="schedule-day schedule-weekday">
-                <span class="day-label">平日:</span> ${weekday}
-              </div>
-              <div class="schedule-day schedule-saturday">
-                <span class="day-label">土曜日:</span> ${saturday}
-              </div>
-            </div>
-          </div>
-        `;
-      }
-
-      // 検索処理
-      function searchSchedule() {
-        const selectedPrefecture = currentPrefecture;
-        const selectedArea = areaSelect.value;
-        let selectedRegion = regionSelect.value;
-        const selectedSubArea = subAreaSelect.value;
-        resultDiv.innerHTML = "";
-        if (!selectedPrefecture || !selectedArea) {
-          resultDiv.innerHTML = "<p>該当するデータがありません。</p>";
-          return;
-        }
-        let scheduleData;
-        if (regionSelect.disabled) {
-          scheduleData = deliveryData[selectedArea];
-          resultDiv.innerHTML = `<div class="result-header">${selectedArea} の配送スケジュール</div>`;
-        } else {
-          if (selectedRegion && deliveryData[selectedArea][selectedRegion]) {
-            scheduleData = deliveryData[selectedArea][selectedRegion];
-            resultDiv.innerHTML = `<div class="result-header">${selectedRegion} の配送スケジュール</div>`;
-          } else {
-            resultDiv.innerHTML = "<p>該当するデータがありません。</p>";
-            return;
-          }
-        }
-        if (selectedSubArea && scheduleData.subAreas && scheduleData.subAreas[selectedSubArea]) {
-          let subData = scheduleData.subAreas[selectedSubArea];
-          let scheduleHTML = `<div class="result-header">${selectedRegion} / ${selectedSubArea}</div>`;
-          if (typeof subData === "string") {
-            scheduleHTML += `<div class="result-card"><div class="result-item">${subData}</div></div>`;
-          } else {
-            for (let time in subData) {
-              scheduleHTML += formatScheduleItem(time, subData[time]);
-            }
-          }
-          resultDiv.innerHTML = scheduleHTML;
-        } else {
-          if (typeof scheduleData === "string") {
-            resultDiv.innerHTML += `<div class="result-card"><div class="result-item">${scheduleData}</div></div>`;
-          } else {
-            for (let time in scheduleData) {
-              if (time === "subAreas") continue;
-              if (typeof scheduleData[time] === "string") {
-                resultDiv.innerHTML += `<div class="result-card"><div class="result-item">${scheduleData[time]}</div></div>`;
-              } else {
-                resultDiv.innerHTML += formatScheduleItem(time, scheduleData[time]);
-              }
-            }
-          }
-        }
-      }
-      window.searchSchedule = searchSchedule;
-    });
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
