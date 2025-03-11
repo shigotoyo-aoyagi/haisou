@@ -40,23 +40,6 @@
       margin-bottom: 20px;
     }
 
-    /* フリガナ表示用のスタイル */
-    .name-with-furigana {
-      display: inline-block;
-      text-align: left;
-      margin-bottom: 20px;
-    }
-    .name-with-furigana .kanji {
-      font-size: 1.2em;
-      font-weight: bold;
-    }
-    .name-with-furigana .furigana {
-      display: block;
-      text-align: right;
-      font-size: 0.8em;
-      color: #888;
-    }
-
     label {
       display: block;
       margin-bottom: 5px;
@@ -152,11 +135,6 @@
 <body>
   <div class="container">
     <h2>配送スケジュール検索</h2>
-    <!-- フリガナの例表示 -->
-    <div class="name-with-furigana">
-      <span class="kanji">相原</span>
-      <span class="furigana">アイハラ</span>
-    </div>
     <!-- 都道府県選択 -->
     <label for="prefecture-select">都道府県を選択：</label>
     <select id="prefecture-select">
