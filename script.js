@@ -36,18 +36,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (!truck) return;
 
-    const screenWidth = window.innerWidth; // 画面幅を取得
-    const truckWidth = 150; // トラックの幅
+    // 画面幅を **固定値として取得**
+    const screenWidth = window.innerWidth; 
+    const truckWidth = truck.getBoundingClientRect().width; // トラックの実際の幅
 
-    // トラックを走らせる
-    truck.style.transition = "transform 7s linear"; // 走る時間を7秒に設定
-    truck.style.transform = `translateX(${screenWidth + truckWidth}px)`; // 画面外へ移動
+    // 初期位置をセット
+    truck.style.transition = "none";
+    truck.style.transform = "translateX(-200px)"; // 画面外に設定
 
-    // 8秒後にトラックをリセット（繰り返し可能に）
     setTimeout(() => {
-      truck.style.transition = "none";
-      truck.style.transform = "translateX(-200px)"; // 初期位置へ戻す
-    }, 8000); // 7秒 + 余裕をもって1秒
+      // 走るアニメーションを適用
+      truck.style.transition = "transform 6s linear";
+      truck.style.transform = `translateX(${screenWidth + truckWidth}px)`; // 画面の外まで走る
+    }, 500); // 0.5秒後に発動
   }
 
   // **ランダムで20回に1回トラックを走らせる**
