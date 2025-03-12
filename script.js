@@ -33,19 +33,27 @@ document.addEventListener("DOMContentLoaded", function () {
   // **トラックのアニメーションを設定**
   function startTruckAnimation() {
     const truck = document.querySelector(".truck");
+
     if (!truck) return;
 
     const screenWidth = window.innerWidth; // 画面幅を取得
-    const truckWidth = 100; // トラックの幅（適宜調整）
+    const truckWidth = 150; // トラックの幅（適宜調整）
 
-    truck.style.transition = "transform 4s linear";
-    truck.style.transform = `translateX(${screenWidth + truckWidth}px)`; // 画面外へ移動
+    // トラックを走らせる
+    truck.style.transition = "transform 5s linear"; // 走る時間を5秒に設定
+    truck.style.transform = `translateX(${screenWidth + truckWidth}px)`;
+
+    // 6秒後にトラックをリセット（繰り返し可能に）
+    setTimeout(() => {
+      truck.style.transition = "none";
+      truck.style.transform = "translateX(-200px)";
+    }, 6000); // 5秒 + 余裕をもって1秒
   }
 
   // **ページ読み込み時にトラックのアニメーションを開始**
   startTruckAnimation();
 
-  // **配送検索の処理（トラックのアニメーションは実行しない）**
+  // **配送検索の際にデータを表示**
   function searchSchedule() {
     const selectedPrefecture = currentPrefecture;
     const selectedArea = areaSelect.value;
@@ -72,6 +80,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
 
+    // サブエリアが選択され、かつサブエリア情報が存在する場合の処理
     if (selectedSubArea && scheduleData.subAreas && scheduleData.subAreas[selectedSubArea]) {
       let subData = scheduleData.subAreas[selectedSubArea];
       let scheduleHTML = `<div class="result-header">${selectedRegion} / ${selectedSubArea}</div>`;
