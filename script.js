@@ -35,17 +35,18 @@ document.addEventListener("DOMContentLoaded", function () {
   function startTruckAnimation() {
     if (!truck) return;
 
-    // 画面の幅を取得
-    const screenWidth = window.innerWidth;
-    const truckWidth = truck.clientWidth || 150; // トラックの幅（適宜調整）
-
     // 初期位置を設定
-    truck.style.transform = `translateX(-${truckWidth}px)`;
-    truck.style.transition = "transform 5s linear";
+    truck.style.transform = "translateX(-100%)";
+    truck.style.transition = "none"; // 最初はアニメーションなし
 
-    // 一定時間後に動かす
+    // 画面サイズを取得して、トラックが完全に消えるまで移動する
+    const screenWidth = window.innerWidth;
+    const truckWidth = truck.clientWidth || 150; // トラックの幅
+
+    // アニメーションを設定
     setTimeout(() => {
-      truck.style.transform = `translateX(${screenWidth}px)`;
+      truck.style.transition = "transform 6s linear"; // 6秒かけて移動
+      truck.style.transform = `translateX(${screenWidth + truckWidth}px)`;
     }, 500); // 0.5秒後に開始
   }
 
