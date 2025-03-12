@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!truck) return;
 
     const screenWidth = window.innerWidth; // 画面幅を取得
-    const truckWidth = 150; // トラックの幅（適宜調整）
+    const truckWidth = 150; // トラックの幅
 
     // トラックを走らせる
     truck.style.transition = "transform 7s linear"; // 走る時間を7秒に設定
@@ -50,8 +50,10 @@ document.addEventListener("DOMContentLoaded", function () {
     }, 8000); // 7秒 + 余裕をもって1秒
   }
 
-  // **ページ読み込み時にトラックのアニメーションを開始**
-  startTruckAnimation();
+  // **ランダムで20回に1回トラックを走らせる**
+  if (Math.random() < 1 / 20) {
+    startTruckAnimation();
+  }
 
   // **配送検索の際にデータを表示**
   function searchSchedule() {
