@@ -40,14 +40,14 @@ document.addEventListener("DOMContentLoaded", function () {
     const truckWidth = 150; // トラックの幅（適宜調整）
 
     // トラックを走らせる
-    truck.style.transition = "transform 5s linear"; // 走る時間を5秒に設定
-    truck.style.transform = `translateX(${screenWidth + truckWidth}px)`;
+    truck.style.transition = "transform 7s linear"; // 走る時間を7秒に設定
+    truck.style.transform = `translateX(${screenWidth + truckWidth}px)`; // 画面外へ移動
 
-    // 6秒後にトラックをリセット（繰り返し可能に）
+    // 8秒後にトラックをリセット（繰り返し可能に）
     setTimeout(() => {
       truck.style.transition = "none";
-      truck.style.transform = "translateX(-200px)";
-    }, 6000); // 5秒 + 余裕をもって1秒
+      truck.style.transform = "translateX(-200px)"; // 初期位置へ戻す
+    }, 8000); // 7秒 + 余裕をもって1秒
   }
 
   // **ページ読み込み時にトラックのアニメーションを開始**
