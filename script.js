@@ -41,12 +41,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // 画面サイズを取得して、トラックが完全に消えるまで移動する
     const screenWidth = window.innerWidth;
-    const truckWidth = truck.clientWidth || 200; // トラックの幅
+    const truckWidth = truck.clientWidth || 150; // トラックの幅
 
     // アニメーションを設定
     setTimeout(() => {
       truck.style.transition = "transform 6s linear"; // 6秒かけて移動
-      truck.style.transform = `translateX(${screenWidth + truckWidth}px)`;
+      truck.style.transform = `translateX(${screenWidth + truckWidth + 100}px)`;
     }, 500); // 0.5秒後に開始
   }
 
