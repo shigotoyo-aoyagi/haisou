@@ -39,13 +39,13 @@ document.addEventListener("DOMContentLoaded", function () {
     const truckWidth = 100; // トラックの幅（適宜調整）
 
     truck.style.transition = "transform 4s linear";
-
-    setTimeout(() => {
-      truck.style.transform = `translateX(${screenWidth + truckWidth}px)`; // 画面外へ移動
-    }, 500); // 0.5秒後に動き始める
+    truck.style.transform = `translateX(${screenWidth + truckWidth}px)`; // 画面外へ移動
   }
 
-  // **配送検索の際にトラックのアニメーションを開始**
+  // **ページ読み込み時にトラックのアニメーションを開始**
+  startTruckAnimation();
+
+  // **配送検索の処理（トラックのアニメーションは実行しない）**
   function searchSchedule() {
     const selectedPrefecture = currentPrefecture;
     const selectedArea = areaSelect.value;
@@ -72,7 +72,6 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
 
-    // サブエリアが選択され、かつサブエリア情報が存在する場合の処理
     if (selectedSubArea && scheduleData.subAreas && scheduleData.subAreas[selectedSubArea]) {
       let subData = scheduleData.subAreas[selectedSubArea];
       let scheduleHTML = `<div class="result-header">${selectedRegion} / ${selectedSubArea}</div>`;
@@ -98,9 +97,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       }
     }
-
-    // **トラックのアニメーションを開始**
-    startTruckAnimation();
   }
 
   window.searchSchedule = searchSchedule;
