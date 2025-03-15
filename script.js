@@ -33,10 +33,18 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+  // 指定されたデータがスケジュール情報（直接「締め」情報がある）かどうか判定する関数
+  function isSchedulingData(data) {
+    if (typeof data === "string") return true;
+    // "subAreas" プロパティは除外してチェック
+    const keys = Object.keys(data).filter(key => key !== "subAreas");
+    return keys.length > 0 && keys.every(key => key.includes("締め"));
+  }
+
   // 都道府県選択時の処理
   prefectureSelect.addEventListener("change", async function () {
     currentPrefecture = prefectureSelect.value;
-    // 入力内容とリストのリセット
+    // 入力内容と datalist をリセット
     areaInput.value = "";
     regionInput.value = "";
     subAreaInput.value = "";
@@ -45,18 +53,15 @@ document.addEventListener("DOMContentLoaded", function () {
     subAreaList.innerHTML = "";
     subAreaContainer.style.display = "none";
     resultDiv.innerHTML = "";
-    
-    // 初期状態で入力を無効に
+
     areaInput.disabled = true;
     regionInput.disabled = true;
 
-    if (!currentPrefecture) {
-      return;
-    }
+    if (!currentPrefecture) return;
 
     await loadDeliveryData(currentPrefecture);
 
-    // 市町村リストの設定
+    // 市町村の候補を設定
     if (deliveryData && Object.keys(deliveryData).length > 0) {
       Object.keys(deliveryData).forEach(area => {
         const option = document.createElement("option");
@@ -70,7 +75,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // 市町村入力時の処理（入力確定後にchangeイベントが発生）
+  // 市町村入力確定時の処理
   areaInput.addEventListener("change", function () {
     const selectedArea = areaInput.value;
     regionInput.value = "";
@@ -79,21 +84,20 @@ document.addEventListener("DOMContentLoaded", function () {
     subAreaList.innerHTML = "";
     subAreaContainer.style.display = "none";
     resultDiv.innerHTML = "";
-    
+
     if (!selectedArea || !deliveryData[selectedArea]) {
       regionInput.disabled = true;
       return;
     }
-    
+
     const data = deliveryData[selectedArea];
-    const keys = Object.keys(data);
-    
-    // エリアリストの設定
-    if (keys.length > 0 && keys[0].includes("締め")) {
+    // すべてのキー（"subAreas"除く）が「締め」を含む場合は、エリア入力は不要とする
+    if (isSchedulingData(data)) {
       regionInput.value = "選択不要";
       regionInput.disabled = true;
     } else {
-      keys.forEach(region => {
+      // エリア候補（市町村直下のキー＝サブエリア名またはエリア名）を datalist に追加
+      Object.keys(data).forEach(region => {
         const option = document.createElement("option");
         option.value = region;
         regionList.appendChild(option);
@@ -102,19 +106,20 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // エリア入力時の処理
+  // エリア入力確定時の処理（サブエリア候補がある場合）
   regionInput.addEventListener("change", function () {
     const selectedArea = areaInput.value;
     const selectedRegion = regionInput.value;
     subAreaInput.value = "";
     subAreaList.innerHTML = "";
-    
-    if (selectedRegion &&
-        deliveryData[selectedArea] &&
-        deliveryData[selectedArea][selectedRegion] &&
-        deliveryData[selectedArea][selectedRegion].subAreas) {
-      const subAreas = Object.keys(deliveryData[selectedArea][selectedRegion].subAreas);
-      subAreas.forEach(sub => {
+
+    if (
+      selectedRegion &&
+      deliveryData[selectedArea] &&
+      deliveryData[selectedArea][selectedRegion] &&
+      deliveryData[selectedArea][selectedRegion].subAreas
+    ) {
+      Object.keys(deliveryData[selectedArea][selectedRegion].subAreas).forEach(sub => {
         const option = document.createElement("option");
         option.value = sub;
         subAreaList.appendChild(option);
@@ -172,7 +177,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
 
-    // サブエリアが選択され、かつ情報が存在する場合
+    // サブエリアが選択され、かつ情報が存在する場合の処理
     if (selectedSubArea && scheduleData.subAreas && scheduleData.subAreas[selectedSubArea]) {
       let subData = scheduleData.subAreas[selectedSubArea];
       let scheduleHTML = `<div class="result-header">${selectedRegion} / ${selectedSubArea}</div>`;
@@ -185,6 +190,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
       resultDiv.innerHTML = scheduleHTML;
     } else {
+      // スケジュール情報が直接ある場合
       if (typeof scheduleData === "string") {
         resultDiv.innerHTML += `<div class="result-card"><div class="result-item">${scheduleData}</div></div>`;
       } else {
@@ -199,6 +205,6 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
   }
-  
+
   window.searchSchedule = searchSchedule;
 });
