@@ -109,6 +109,34 @@
       background-color: #ffe082;
       color: #ff6f00;
     }
+    /* 都道府県セレクト専用スタイル */
+#prefecture-select {
+  width: 100%;
+  padding: 12px 16px;
+  margin: 10px 0 20px 0;
+  font-size: 16px;
+  color: var(--secondary-color);
+  background: var(--white);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  box-sizing: border-box;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  /* カスタムの下矢印アイコン（SVGデータURL使用） */
+  background-image: url("data:image/svg+xml;utf8,<svg fill='%23004d40' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  cursor: pointer;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+#prefecture-select:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px rgba(38, 166, 154, 0.3);
+  outline: none;
+}
+
   </style>
 </head>
 <body>
