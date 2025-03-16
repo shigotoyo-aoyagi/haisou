@@ -8,6 +8,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const subAreaInput = document.getElementById("sub-area-input");
   const subAreaList = document.getElementById("sub-area-list");
   const resultDiv = document.getElementById("result");
+  const truck = document.querySelector("#truck-animation .truck");
+
 
   let deliveryData = {};
   let currentPrefecture = "";
