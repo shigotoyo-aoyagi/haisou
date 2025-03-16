@@ -52,7 +52,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }, 500); // 0.5秒後に開始
   }
 
-  // **ランダムで20回に1回トラックを走らせる**
+  // **トラックのアニメーションを制御する**
   if (Math.random() < 1 /1) {
     startTruckAnimation();
   }
