@@ -33,6 +33,31 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+  // **トラックのアニメーションを設定**
+  function startTruckAnimation() {
+    if (!truck) return;
+
+    // 初期位置を設定
+    truck.style.transform = "translateX(-100%)";
+    truck.style.transition = "none"; // 最初はアニメーションなし
+
+    // 画面サイズを取得して、トラックが完全に消えるまで移動する
+    const screenWidth = window.innerWidth;
+    const truckWidth = truck.clientWidth || 150; // トラックの幅
+
+    // アニメーションを設定
+    setTimeout(() => {
+      truck.style.transition = "transform 6s linear"; // 6秒かけて移動
+      truck.style.transform = `translateX(${screenWidth + truckWidth + 100}px)`;
+    }, 500); // 0.5秒後に開始
+  }
+
+  // **ランダムで20回に1回トラックを走らせる**
+  if (Math.random() < 1 /1) {
+    startTruckAnimation();
+  }
+
+
   // 指定されたデータがスケジュール情報（直接「締め」情報がある）かどうか判定する関数
   function isSchedulingData(data) {
     if (typeof data === "string") return true;
